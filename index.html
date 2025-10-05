@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مرجع أوامر Git — صفحة واحدة</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#06b6d4;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;font-family:Inter, Tahoma, Arial, sans-serif;background:linear-gradient(180deg,#081226 0%, #071826 100%);color:#e6eef6}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .search-row{display:flex;gap:8px;margin-top:12px}
+    input[type=search]{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:var(--card);color:inherit}
+    select{padding:10px;border-radius:10px;background:var(--card);border:1px solid rgba(255,255,255,0.04);color:inherit}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    .left{min-height:60vh}
+    .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .cmd-item{padding:10px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+    .cmd-item:hover{transform:translateY(-2px)}
+    .cmd-title{font-weight:600}
+    .cmd-desc{color:var(--muted);font-size:13px;margin-top:6px}
+    pre.cmd{background:var(--glass);padding:10px;border-radius:8px;overflow:auto;font-size:13px}
+    .small{font-size:13px;color:var(--muted)}
+    .copy-btn{padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:#022;cursor:pointer}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    .category{display:inline-block;background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;margin:4px 4px 0 0;font-size:13px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr} .left{order:2}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>مرجع أوامر Git — صفحة واحدة</h1>
+        <p class="lead">اضغط على أمر لعرض الشرح والأمر الذي تكتبه في التيرمنال. يمكنك البحث أو تصفية الفئة.</p>
+      </div>
+    </header>
+
+    <div class="search-row">
+      <input id="search" type="search" placeholder="ابحث عن أمر أو وصف (مثال: commit, rebase, remote)" />
+      <select id="filter">
+        <option value="all">كل الفئات</option>
+      </select>
+    </div>
+
+    <div class="grid" style="margin-top:14px">
+      <div class="left">
+        <div id="list" class="card"></div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <h3 id="detail-title">اختر أمرًا من القائمة</h3>
+          <p id="detail-desc" class="small">سوف يظهر هنا الشرح والأمر المراد تنفيذه عند الضغط على أي بند.</p>
+          <div style="margin-top:12px">
+            <pre id="detail-cmd" class="cmd">—</pre>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="copy" class="copy-btn">نسخ الأمر</button>
+              <button id="open-shell" class="copy-btn" style="background:#38bdf8">فتح مع تورتيلي</button>
+            </div>
+          </div>
+          <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
+          <div>
+            <div class="small">فئات شائعة:</div>
+            <div id="categories" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="small">ملاحظات سريعة:</div>
+          <ul class="small">
+            <li>الأوامر مبنية على Git الرسمي — معظمها يعمل على أنظمة Unix/Windows.</li>
+            <li>استخدم الأمر <code>git help &lt;command&gt;</code> لقراءة التوثيق الكامل.</li>
+            <li>كن حذرًا مع الأوامر التي تعيد كتابة التاريخ (مثل rebase أو reset --hard).</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="small">هل تريد إضافة أوامر جديدة أو ترجمة الإنجليزية؟ قلّي وسأعدّل الصفحة.</footer>
+  </div>
+
+  <script>
+    const COMMANDS = [
+      // Basics
+      {id:'init',cat:'أساسيات',title:'git init',desc:'إنشاء مستودع Git محلي في المجلد الحالي.',cmd:'git init'},
+      {id:'clone',cat:'أساسيات',title:'git clone',desc:'نسخ (clone) مستودع من عنوان بعيد إلى جهازك.',cmd:'git clone <repo-url>'},
+      {id:'status',cat:'أساسيات',title:'git status',desc:'عرض حالة الملفات (معدلة، مضافة، جاهزة للـ commit).',cmd:'git status'},
+      {id:'add',cat:'أساسيات',title:'git add',desc:'إضافة ملفات إلى الـ staging area لتحضيرها للـ commit.',cmd:'git add <file-or-dir>\n# لإضافة كل الملفات\ngit add .'},
+      {id:'commit',cat:'أساسيات',title:'git commit',desc:'حفظ حالة الملفات في الـ repository (مع رسالة).',cmd:'git commit -m "رسالة مختصرة"\n# إذا أردت تعديل الرسالة في محرر:\ngit commit'},
+      {id:'log',cat:'أساسيات',title:'git log',desc:'عرض سجل الـ commits.',cmd:'git log --oneline --graph --decorate --all'},
+
+      // Branching
+      {id:'branch-list',cat:'فروع',title:'git branch',desc:'عرض الفروع المحلية أو إنشاء فرع جديد.',cmd:'git branch\n# إنشاء فرع جديد\ngit branch <branch-name>'},
+      {id:'checkout',cat:'فروع',title:'git checkout',desc:'الانتقال لفرع أو استرجاع ملف من commit سابق.',cmd:'git checkout <branch-name>\n# إنشاء والانتقال في خطوة واحدة\ngit checkout -b <new-branch>'},
+      {id:'merge',cat:'فروع',title:'git merge',desc:'دمج فرع آخر إلى الفرع الحالي.',cmd:'git merge <branch-name>'},
+      {id:'switch',cat:'فروع',title:'git switch',desc:'بديل حديث لـ checkout للانتقال وإنشاء الفروع.',cmd:'git switch <branch-name>\n# لإنشاء والانتقال\ngit switch -c <new-branch>'},
+
+      // Remote
+      {id:'remote',cat:'بعيد',title:'git remote',desc:'عرض وإدارة المستودعات البعيدة (remotes).',cmd:'git remote -v\n# إضافة remote جديد\ngit remote add origin <repo-url>'},
+      {id:'fetch',cat:'بعيد',title:'git fetch',desc:'جلب الفروع والـ commits من المستودع البعيد دون دمجها تلقائياً.',cmd:'git fetch origin'},
+      {id:'pull',cat:'بعيد',title:'git pull',desc:'جلب ودمج التغييرات من المستودع البعيد إلى الفرع الحالي.',cmd:'git pull origin <branch>'},
+      {id:'push',cat:'بعيد',title:'git push',desc:'إرسال commits من فرعك المحلي إلى المستودع البعيد.',cmd:'git push origin <branch>\n# دفع فرع وإنشاءه في الـ remote\ngit push -u origin <branch>'},
+
+      // Undo & Recovery
+      {id:'reset',cat:'تراجع',title:'git reset',desc:'إعادة HEAD إلى حالة سابقة — احذر (يمكن أن يغير الـ staging).',cmd:'git reset --soft <commit>\n# إعادة ومسح الـ staging\ngit reset --mixed <commit>\n# إعادة وارجاع ملفات العمل (حذف تغييرات غير ملتزم بها)\ngit reset --hard <commit>'},
+      {id:'revert',cat:'تراجع',title:'git revert',desc:'إنشاء commit جديد يعكس تغييرات commit سابق (آمن للمشاركة).',cmd:'git revert <commit>'},
+      {id:'checkout-file',cat:'تراجع',title:'git checkout -- <file>',desc:'استرجاع ملف إلى آخر حالة ملتزمة (commit).',cmd:'git checkout -- <file>'},
+
+      // Stash
+      {id:'stash',cat:'الاحتفاظ المؤقت',title:'git stash',desc:'حفظ تغييرات غير ملتزمة مؤقتًا وإرجاع حالة الشجرة للعمل النظيفة.',cmd:'git stash\n# حفظ مع رسالة\ngit stash push -m "message"\n# عرض الـ stash list\ngit stash list\n# استرجاع آخر stash\ngit stash pop'},
+
+      // Rewriting history
+      {id:'rebase',cat:'تاريخ',title:'git rebase',desc:'إعادة تطبيق commits فوق قاعدة جديدة — مفيد لتنظيف التاريخ.',cmd:'git rebase <branch>\n# التفاعل والتعديل أثناء rebase\ngit rebase -i <commit>'},
+      {id:'amend',cat:'تاريخ',title:'git commit --amend',desc:'تعديل آخر commit (مثلاً لتغيير الرسالة أو إضافة ملفات).',cmd:'git commit --amend -m "رسالة جديدة"'},
+
+      // Tags
+      {id:'tag',cat:'علامات',title:'git tag',desc:'إنشاء وإدارة العلامات (tags) لإصدارات محددة.',cmd:'git tag v1.0.0\n# دَفع العلامات للـ remote\ngit push origin --tags'},
+
+      // Bisect
+      {id:'bisect',cat:'تشخيص',title:'git bisect',desc:'أداة binary search لتحديد commit الذي أحدث خطأ.',cmd:'git bisect start\n# تعيين جيد/سيء\ngit bisect bad <bad-commit>\ngit bisect good <good-commit>'},
+
+      // Submodules
+      {id:'submodule',cat:'متقدم',title:'git submodule',desc:'إدارة مستودعات داخل مستودعات (submodules).',cmd:'git submodule add <repo> <path>\n# تحديث submodules\ngit submodule update --init --recursive'},
+
+      // Hooks
+      {id:'hooks',cat:'متقدم',title:'hooks (pre-commit, pre-push...)',desc:'سكربتات تُنفَّذ أثناء أحداث Git (داخل .git/hooks).',cmd:'# ضع سكربت في .git/hooks/pre-commit ثم اجعله قابل للتنفيذ\nchmod +x .git/hooks/pre-commit'},
+
+      // Config
+      {id:'config',cat:'الإعداد',title:'git config',desc:'إعداد بيانات المستخدم وخيارات Git محليًا أو عالميًا.',cmd:'git config --global user.name "Your Name"\ngit config --global user.email "you@example.com"\n# عرض جميع الإعدادات\ngit config --list'},
+
+      // Troubleshooting
+      {id:'stash-apply',cat:'استكشاف',title:'حل تعارضات',desc:'أوامر تساعد في حل التعارضات merge/rebase.',cmd:'# إظهار الملفات المتعارضة\ngit status\n# بعد حل التعارضات\ngit add <file>\n# استكمال rebase\ngit rebase --continue\n# أو إتمام merge\ngit commit'},
+
+      // Safety & tips
+      {id:'help',cat:'مساعدة',title:'git help',desc:'عرض توثيق الأمر مباشرة من Git.',cmd:'git help <command>\n# مثال\ngit help commit'},
+
+      // Advanced / plumbing
+      {id:'stash-branch',cat:'متقدم',title:'git stash branch',desc:'إنشاء فرع جديد من stash الحالي واسترجاعه تلقائيًا.',cmd:'git stash branch <new-branch>'},
+      {id:'filter-branch',cat:'متقدم',title:'git filter-branch (قديم)',desc:'إعادة كتابة التاريخ على نطاق واسع (توخي الحذر).',cmd:'git filter-branch --tree-filter "rm -f password.txt" -- --all'},
+      {id:'filter-repo',cat:'متقدم',title:'git filter-repo (حديث)',desc:'أداة خارجية لاستبدال filter-branch (مفضلة للأداء والموثوقية).',cmd:'# (تثبيت) ثم:\ngit filter-repo --path password.txt --invert-paths'},
+
+      // Useful combos
+      {id:'pull-rebase',cat:'نصائح',title:'git pull --rebase',desc:'استخدام rebase بدل merge عند سحب التغييرات لتجنب commits دمج غير مرغوب.',cmd:'git pull --rebase origin <branch>'},
+      {id:'squash',cat:'نصائح',title:'squash commits (interactive rebase)',desc:'دمج عدة commits في واحد باستخدام rebase تفاعلي.',cmd:'git rebase -i HEAD~3  # ثم ضع "s" على commits المراد دمجها'},
+
+      // Rescue
+      {id:'lost-found',cat:'استكشاف',title:'git fsck & git reflog',desc:'استعادة commits مفقودة باستخدام reflog و fsck.',cmd:'git reflog\n# تحديد commit ثم استرجاعه\ngit checkout <commit-hash>\n# إعادة فرع\ngit branch recovered <commit-hash>'}
+    ];
+
+    // populate filter options
+    const filterEl = document.getElementById('filter');
+    const cats = [...new Set(COMMANDS.map(c=>c.cat))];
+    cats.forEach(cat=>{
+      const opt = document.createElement('option'); opt.value=cat; opt.textContent=cat; filterEl.appendChild(opt);
+    });
+
+    const listEl = document.getElementById('list');
+    const detailTitle = document.getElementById('detail-title');
+    const detailDesc = document.getElementById('detail-desc');
+    const detailCmd = document.getElementById('detail-cmd');
+    const copyBtn = document.getElementById('copy');
+
+    function renderList(query='',category='all'){
+      listEl.innerHTML = '';
+      const q = query.trim().toLowerCase();
+      const filtered = COMMANDS.filter(c=>{
+        if(category!=='all' && c.cat!==category) return false;
+        if(!q) return true;
+        return (c.title + ' ' + c.desc + ' ' + c.cmd).toLowerCase().includes(q);
+      });
+      if(filtered.length===0){ listEl.innerHTML='<div class="card small">لا توجد نتائج.</div>'; return }
+      filtered.forEach(c=>{
+        const div = document.createElement('div'); div.className='cmd-item';
+        div.innerHTML = `<div class="cmd-title">${c.title}</div><div class="cmd-desc">${c.desc}</div>`;
+        div.addEventListener('click', ()=>{
+          showDetail(c);
+        });
+        listEl.appendChild(div);
+      });
+    }
+
+    function showDetail(c){
+      detailTitle.textContent = c.title;
+      detailDesc.textContent = c.desc;
+      detailCmd.textContent = c.cmd;
+      // highlight category
+      document.getElementById('categories').innerHTML = `<span class="category">${c.cat}</span>`;
+    }
+
+    document.getElementById('search').addEventListener('input', e=>{
+      renderList(e.target.value, filterEl.value);
+    });
+    filterEl.addEventListener('change', e=>{
+      renderList(document.getElementById('search').value, e.target.value);
+    });
+
+    copyBtn.addEventListener('click', ()=>{
+      const txt = detailCmd.textContent;
+      if(!txt || txt==='—') return alert('اختر أمرًا أولًا');
+      navigator.clipboard.writeText(txt).then(()=>{ alert('تم نسخ الأمر إلى الحافظة'); }).catch(()=>{ alert('فشل النسخ — جرب يدويًا') });
+    });
+
+    // initial render
+    renderList();
+  </script>
+</body>
+</html>
